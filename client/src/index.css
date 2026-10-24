@@ -7,10 +7,60 @@
   padding: 0;
 }
 
+:root {
+  color-scheme: light;
+  --page-bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --surface-hover: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --border-subtle: #f1f5f9;
+  --badge-bg: #e2e8f0;
+  --label-text: #334155;
+  --input-bg: #ffffff;
+  --primary-bg: #0f172a;
+  --primary-hover: #1e293b;
+  --primary-text: #ffffff;
+  --danger-text: #b91c1c;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --danger-banner-text: #991b1b;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --page-bg: #0f172a;
+  --surface: #1e293b;
+  --surface-muted: #172235;
+  --surface-hover: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+  --border: #334155;
+  --border-strong: #475569;
+  --border-subtle: #334155;
+  --badge-bg: #334155;
+  --label-text: #cbd5e1;
+  --input-bg: #0f172a;
+  --primary-bg: #e2e8f0;
+  --primary-hover: #cbd5e1;
+  --primary-text: #0f172a;
+  --danger-text: #fca5a5;
+  --danger-bg: #450a0a;
+  --danger-border: #7f1d1d;
+  --danger-banner-text: #fecaca;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: var(--page-bg);
+  color: var(--text-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   padding: 32px 16px;
@@ -38,7 +88,7 @@ body {
 .app-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   letter-spacing: -0.02em;
 }
 
@@ -48,10 +98,22 @@ body {
   gap: 10px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
 .user-badge {
   font-size: 0.8125rem;
-  color: #475569;
-  background-color: #e2e8f0;
+  color: var(--text-secondary);
+  background-color: var(--badge-bg);
   padding: 4px 10px;
   border-radius: 4px;
   font-weight: 500;
@@ -65,8 +127,8 @@ body {
    Auth Card & Form
    ========================================================================== */
 .auth-card {
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 16px;
@@ -74,8 +136,8 @@ body {
 
 .auth-tabs {
   display: flex;
-  border-bottom: 1px solid #e2e8f0;
-  background-color: #f8fafc;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--surface-muted);
 }
 
 .auth-tab {
@@ -87,19 +149,19 @@ body {
   background-color: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #64748b;
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .auth-tab.active {
-  background-color: #ffffff;
-  color: #0f172a;
-  border-bottom-color: #0f172a;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  border-bottom-color: var(--primary-bg);
 }
 
 .auth-tab:hover:not(.active) {
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .auth-form {
@@ -116,9 +178,9 @@ body {
    Error Banner & Feedback
    ========================================================================== */
 .error-banner {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
+  background-color: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-banner-text);
   padding: 10px 14px;
   border-radius: 6px;
   margin-bottom: 20px;
@@ -131,7 +193,7 @@ body {
 
 .form-error,
 .item-error {
-  color: #b91c1c;
+  color: var(--danger-text);
   font-size: 0.8125rem;
   margin-bottom: 12px;
 }
@@ -140,8 +202,8 @@ body {
    Forms & Controls
    ========================================================================== */
 .task-form {
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 16px;
   margin-bottom: 20px;
@@ -155,7 +217,7 @@ body {
   display: block;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #334155;
+  color: var(--label-text);
   margin-bottom: 4px;
 }
 
@@ -164,9 +226,9 @@ body {
   width: 100%;
   font-family: inherit;
   font-size: 0.9375rem;
-  color: #0f172a;
-  background-color: #ffffff;
-  border: 1px solid #cbd5e1;
+  color: var(--text-primary);
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
   padding: 8px 12px;
   transition: border-color 0.15s ease;
@@ -175,7 +237,7 @@ body {
 .form-input:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: #0f172a;
+  border-color: var(--primary-bg);
 }
 
 .form-textarea {
@@ -209,33 +271,33 @@ body {
 }
 
 .btn-primary {
-  background-color: #0f172a;
-  color: #ffffff;
-  border-color: #0f172a;
+  background-color: var(--primary-bg);
+  color: var(--primary-text);
+  border-color: var(--primary-bg);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #1e293b;
+  background-color: var(--primary-hover);
 }
 
 .btn-secondary {
-  background-color: #ffffff;
-  color: #334155;
-  border-color: #cbd5e1;
+  background-color: var(--surface);
+  color: var(--label-text);
+  border-color: var(--border-strong);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: #f1f5f9;
+  background-color: var(--surface-hover);
 }
 
 .btn-danger {
-  background-color: #ffffff;
-  color: #b91c1c;
-  border-color: #fecaca;
+  background-color: var(--surface);
+  color: var(--danger-text);
+  border-color: var(--danger-border);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background-color: #fef2f2;
+  background-color: var(--danger-bg);
 }
 
 .btn-sm {
@@ -252,10 +314,10 @@ body {
 
 .filter-group {
   display: inline-flex;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border-strong);
   border-radius: 6px;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: var(--surface);
 }
 
 .filter-btn {
@@ -264,10 +326,10 @@ body {
   font-weight: 500;
   padding: 6px 14px;
   border: none;
-  background-color: #ffffff;
-  color: #475569;
+  background-color: var(--surface);
+  color: var(--text-secondary);
   cursor: pointer;
-  border-right: 1px solid #cbd5e1;
+  border-right: 1px solid var(--border-strong);
 }
 
 .filter-btn:last-child {
@@ -275,12 +337,12 @@ body {
 }
 
 .filter-btn.active {
-  background-color: #0f172a;
-  color: #ffffff;
+  background-color: var(--primary-bg);
+  color: var(--primary-text);
 }
 
 .filter-btn:hover:not(.active) {
-  background-color: #f1f5f9;
+  background-color: var(--surface-hover);
 }
 
 /* ==========================================================================
@@ -294,8 +356,8 @@ body {
 }
 
 .task-item {
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 12px 14px;
 }
@@ -316,7 +378,7 @@ body {
 .task-checkbox {
   width: 17px;
   height: 17px;
-  accent-color: #0f172a;
+  accent-color: var(--primary-bg);
   cursor: pointer;
 }
 
@@ -335,19 +397,19 @@ body {
 .task-title {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary);
   word-break: break-word;
 }
 
 .task-date {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: var(--text-subtle);
   white-space: nowrap;
 }
 
 .task-description {
   font-size: 0.875rem;
-  color: #475569;
+  color: var(--text-secondary);
   margin-top: 4px;
   white-space: pre-wrap;
   word-break: break-word;
@@ -355,11 +417,11 @@ body {
 
 .task-item.is-completed .task-title {
   text-decoration: line-through;
-  color: #94a3b8;
+  color: var(--text-subtle);
 }
 
 .task-item.is-completed .task-description {
-  color: #94a3b8;
+  color: var(--text-subtle);
 }
 
 .task-actions {
@@ -388,7 +450,7 @@ body {
    ========================================================================== */
 .state-message {
   text-align: center;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.9375rem;
   padding: 32px 0;
 }
@@ -408,6 +470,10 @@ body {
   }
 
   .user-profile-bar {
+    width: auto;
+  }
+
+  .header-actions {
     width: 100%;
     justify-content: space-between;
   }
@@ -420,6 +486,6 @@ body {
     width: 100%;
     justify-content: flex-end;
     padding-top: 8px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--border-subtle);
   }
 }

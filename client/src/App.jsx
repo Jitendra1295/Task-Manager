@@ -1,10 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Moon, Sun } from 'lucide-react';
 import { fetchTasks, createTask, updateTask, deleteTask } from './api/tasks';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
 import AuthForm from './components/AuthForm';
 
+const getInitialTheme = () => {
+  try {
+    return localStorage.getItem('task_theme') === 'dark' ? 'dark' : 'light';
+  } catch {
+    return 'light';
+  }
+};
+
 function App() {
+  const [theme, setTheme] = useState(getInitialTheme);
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const stored = localStorage.getItem('task_user');
@@ -19,6 +29,15 @@ function App() {
   const [filter, setFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem('task_theme', theme);
+    } catch (storageError) {
+      console.warn('Could not save the theme preference.', storageError);
+    }
+  }, [theme]);
 
   // Handle unauthorized events dispatched by Axios interceptor
   useEffect(() => {
@@ -96,20 +115,39 @@ function App() {
       <header className="app-header">
         <div className="header-row">
           <h1 className="app-title">Task Manager</h1>
-          {currentUser && (
-            <div className="user-profile-bar">
-              <span className="user-badge" title={currentUser.email}>
-                {currentUser.name}
-              </span>
-              <button
-                type="button"
-                className="btn btn-sm btn-secondary"
-                onClick={handleLogout}
-              >
-                Log Out
-              </button>
-            </div>
-          )}
+          <div className="header-actions">
+            <button
+              type="button"
+              className="btn btn-sm btn-secondary theme-toggle"
+              onClick={() =>
+                setTheme((currentTheme) => (currentTheme === 'light' ? 'dark' : 'light'))
+              }
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              aria-pressed={theme === 'dark'}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? (
+                <Moon size={16} aria-hidden="true" />
+              ) : (
+                <Sun size={16} aria-hidden="true" />
+              )}
+              <span>{theme === 'light' ? 'Dark mode' : 'Light mode'}</span>
+            </button>
+            {currentUser && (
+              <div className="user-profile-bar">
+                <span className="user-badge" title={currentUser.email}>
+                  {currentUser.name}
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-secondary"
+                  onClick={handleLogout}
+                >
+                  Log Out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
