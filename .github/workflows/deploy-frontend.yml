@@ -48,6 +48,12 @@ jobs:
           role-to-assume: arn:aws:iam::028722616652:role/GitHubActionsTaskManagerDeployRole
           aws-region: ap-south-1
 
+      - name: Deploy hashed assets to S3
+        run: >-
+          aws s3 sync client/dist/assets/
+          s3://task-manager-frontend-jeet/assets/
+          --cache-control "public, max-age=31536000, immutable"
+
       - name: Deploy non-hashed files to S3
         run: >-
           aws s3 sync client/dist/
@@ -55,10 +61,3 @@ jobs:
           --delete
           --exclude "assets/*"
           --cache-control "no-cache, no-store, must-revalidate"
-
-      - name: Deploy hashed assets to S3
-        run: >-
-          aws s3 sync client/dist/assets/
-          s3://task-manager-frontend-jeet/assets/
-          --delete
-          --cache-control "public, max-age=31536000, immutable"
