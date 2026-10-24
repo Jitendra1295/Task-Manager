@@ -4,12 +4,10 @@ const app = require('../src/app');
 describe('HTTP request and error logging', () => {
   let infoSpy;
   let warnSpy;
-  let errorSpy;
 
   beforeEach(() => {
     infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
     warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {

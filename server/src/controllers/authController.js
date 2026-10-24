@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const { sendWelcomeEmail } = require('../services/email.service');
 
 /**
  * @desc   Register a new user
@@ -59,6 +60,16 @@ const register = async (req, res, next) => {
       email: normalizedEmail,
       password,
     });
+
+    try {
+      const result = await sendWelcomeEmail(user.email, user.name);
+      console.log('SES welcome email accepted:', result.MessageId);
+    } catch (error) {
+      console.error('SES welcome email failed:', {
+        name: error.name,
+        message: error.message,
+      });
+    }
 
     const token = generateToken(user._id);
 

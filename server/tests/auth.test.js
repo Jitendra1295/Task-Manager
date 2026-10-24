@@ -1,7 +1,12 @@
 const request = require('supertest');
+jest.mock('../src/services/email.service', () => ({
+  sendWelcomeEmail: jest.fn().mockResolvedValue({ MessageId: 'test-message-id' }),
+}));
+
 const app = require('../src/app');
 const User = require('../src/models/User');
 const { connectDB, disconnectDB } = require('../src/config/db');
+const { sendWelcomeEmail } = require('../src/services/email.service');
 
 const TEST_DB_URI = 'mongodb://127.0.0.1:27017/task_manager_auth_test';
 
@@ -34,8 +39,35 @@ describe('Authentication REST API Endpoints', () => {
     expect(res.body.user.email).toBe('jeet@example.com');
     expect(res.body.user.name).toBe('Jeet Patel');
     expect(res.body.user.password).toBeUndefined(); // Password hash must never leak
+    expect(sendWelcomeEmail).toHaveBeenCalledWith('jeet@example.com', 'Jeet Patel');
 
     authToken = res.body.token;
+  });
+
+  it('POST /api/auth/register should succeed when the welcome email fails', async () => {
+    sendWelcomeEmail.mockRejectedValueOnce(new Error('SES unavailable'));
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      const res = await request(app)
+        .post('/api/auth/register')
+        .send({
+          name: 'Email Failure User',
+          email: 'email-failure@example.com',
+          password: 'password123',
+        });
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body).toHaveProperty('token');
+      expect(res.body.user.email).toBe('email-failure@example.com');
+      expect(errorSpy).toHaveBeenCalledWith('SES welcome email failed:', {
+        name: 'Error',
+        message: 'SES unavailable',
+      });
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   it('POST /api/auth/register should reject duplicate email registration', async () => {

@@ -1,5 +1,8 @@
 const request = require('supertest');
-const mongoose = require('mongoose');
+jest.mock('../src/services/email.service', () => ({
+  sendWelcomeEmail: jest.fn().mockResolvedValue({ MessageId: 'test-message-id' }),
+}));
+
 const app = require('../src/app');
 const Task = require('../src/models/Task');
 const User = require('../src/models/User');

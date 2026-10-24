@@ -7,7 +7,7 @@ A simple, reliable, and production-minded Task Manager application built with th
 ## 1. Tech Stack
 
 - **Frontend:** React 18, Vite, JavaScript, Plain CSS
-- **Backend:** Node.js (v20+ / v22+), Express.js, REST API, Helmet, CORS
+- **Backend:** Node.js (v20+ / v22+), Express.js, REST API, Helmet, CORS, AWS SES v2
 - **Authentication:** JSON Web Tokens (JWT) + `bcryptjs` password hashing
 - **Database:** MongoDB & Mongoose ODM
 - **Environment Management:** `dotenv`
@@ -46,6 +46,8 @@ task-manager/
 │   │   │   ├── authMiddleware.js  # JWT Bearer token protection middleware
 │   │   │   ├── error.middleware.js # Centralized error normalizer and handler
 │   │   │   └── requestLogger.js   # HTTP request and status logging
+│   │   ├── services/
+│   │   │   └── email.service.js   # SES welcome email service
 │   │   ├── models/
 │   │   │   ├── User.js            # User schema with bcrypt pre-save hook
 │   │   │   └── Task.js            # Task schema with user reference & compound index
@@ -88,6 +90,9 @@ task-manager/
    JWT_EXPIRES_IN=7d
    CLIENT_URL=http://localhost:5173
    ```
+   The SES service uses `ap-south-1` and the AWS SDK default credential
+   provider chain. On EC2, grant the instance role permission to send SES
+   emails; do not put AWS access keys in the application or repository.
 
 2. **Client Environment (`client/.env`):**
    ```env
@@ -151,8 +156,9 @@ Run the automated backend test suites (Jest + Supertest):
 npm run test:server
 ```
 
-Validates (20 automated tests):
+Validates (21 automated tests):
 - User registration with validation & duplicate email rejection
+- Welcome email invocation and successful registration when SES fails
 - Password hashing and password comparison
 - JWT token generation & Bearer verification
 - Task creation with valid & invalid inputs
@@ -167,9 +173,23 @@ request. Error logs include the method, path, status, and error type; unexpected
 server errors also include their message. Request bodies, headers, and query
 parameters are not logged, so passwords and bearer tokens are not included.
 
+After a new account is saved, the API attempts to send a welcome email using
+Amazon SES. Email failures are logged and do not undo account creation or
+prevent the normal registration response. SES sandbox accounts can send only
+to verified recipient addresses.
+
+## 7. Backend CI
+
+The `Backend CI` GitHub Actions workflow runs for backend changes on `main`,
+pull requests targeting `main`, or manual dispatch. It installs the locked
+server dependencies, runs ESLint and JavaScript syntax checks, starts a
+temporary MongoDB service for the backend tests, and audits production
+dependencies for high or critical vulnerabilities. It does not deploy or
+connect to AWS.
+
 ---
 
-## 7. Production Build & AWS Deployment Readiness
+## 8. Production Build & AWS Deployment Readiness
 
 ### Frontend Static Build (for Amazon S3 + CloudFront)
 ```powershell
