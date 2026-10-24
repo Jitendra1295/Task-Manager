@@ -44,7 +44,8 @@ task-manager/
 │   │   │   └── taskController.js  # User-scoped CRUD controllers with ownership checks
 │   │   ├── middleware/
 │   │   │   ├── authMiddleware.js  # JWT Bearer token protection middleware
-│   │   │   └── errorHandler.js    # Centralized error normalizer and handler
+│   │   │   ├── error.middleware.js # Centralized error normalizer and handler
+│   │   │   └── requestLogger.js   # HTTP request and status logging
 │   │   ├── models/
 │   │   │   ├── User.js            # User schema with bcrypt pre-save hook
 │   │   │   └── Task.js            # Task schema with user reference & compound index
@@ -59,7 +60,8 @@ task-manager/
 │   ├── tests/
 │   │   ├── auth.test.js           # Registration, login, and JWT validation tests
 │   │   ├── health.test.js         # Healthcheck and 404 tests
-│   │   └── tasks.test.js          # Authenticated CRUD & ownership isolation tests
+│   │   ├── tasks.test.js          # Authenticated CRUD & ownership isolation tests
+│   │   └── logging.test.js        # Request and global error logging tests
 │   ├── .env                       # PORT=3000, MONGODB_URI=mongodb://127.0.0.1:27017/task_manager
 │   ├── .env.example
 │   └── package.json
@@ -149,7 +151,7 @@ Run the automated backend test suites (Jest + Supertest):
 npm run test:server
 ```
 
-Validates (17 automated tests):
+Validates (20 automated tests):
 - User registration with validation & duplicate email rejection
 - Password hashing and password comparison
 - JWT token generation & Bearer verification
@@ -157,7 +159,13 @@ Validates (17 automated tests):
 - User-scoped task queries (User B cannot see User A's tasks)
 - Task ownership authorization (User B cannot update or delete User A's task - `403 Forbidden`)
 - Health check diagnostics & 404 handler
+- Request completion logs and centralized error logging
 - Helmet security headers
+
+The API writes JSON request logs to the server console for every completed HTTP
+request. Error logs include the method, path, status, and error type; unexpected
+server errors also include their message. Request bodies, headers, and query
+parameters are not logged, so passwords and bearer tokens are not included.
 
 ---
 

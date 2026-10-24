@@ -54,7 +54,7 @@ const sendErrorDev = (err, res) => {
  */
 const sendErrorProd = (err, res) => {
   // Operational, trusted error: send message to client
-  if (err.isOperational) {
+  if (err.isOperational && err.statusCode < 500) {
     return res.status(err.statusCode).json({
       success: false,
       status: err.status,
@@ -64,8 +64,6 @@ const sendErrorProd = (err, res) => {
   }
 
   // Programming or unknown error: don't leak details to client
-  console.error('CRITICAL INTERNAL ERROR 💥:', err);
-
   return res.status(500).json({
     success: false,
     status: 'error',
@@ -77,23 +75,49 @@ const sendErrorProd = (err, res) => {
  * Centralized Error Handling Middleware
  */
 const errorHandler = (err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-
   const env = process.env.NODE_ENV || 'development';
+  const statusCode = Number.isInteger(err.statusCode)
+    ? err.statusCode
+    : Number.isInteger(err.status)
+      ? err.status
+      : 500;
+  let error = Object.assign(Object.create(err), err);
+  error.statusCode = statusCode;
+  error.status = err.status || (`${statusCode}`.startsWith('4') ? 'fail' : 'error');
+
+  if (err.type === 'entity.parse.failed') {
+    error = new AppError('Invalid JSON request body', 400);
+  } else if (err.type === 'entity.too.large') {
+    error = new AppError('Request body is too large', 413);
+  } else if (err.name === 'CastError') {
+    error = handleCastErrorDB(err);
+  } else if (err.code === 11000) {
+    error = handleDuplicateFieldsDB(err);
+  } else if (err.name === 'ValidationError') {
+    error = handleValidationErrorDB(err);
+  } else if (err.name === 'JsonWebTokenError') {
+    error = handleJWTError();
+  } else if (err.name === 'TokenExpiredError') {
+    error = handleJWTExpiredError();
+  } else if (statusCode < 500 && !err.isOperational) {
+    error = new AppError(err.message, statusCode);
+  }
+
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    level: error.statusCode >= 500 ? 'error' : 'warn',
+    event: 'http_error',
+    method: req.method,
+    path: req.path,
+    statusCode: error.statusCode,
+    error: error.name,
+    ...(error.statusCode >= 500 && { message: error.message }),
+  };
+  console[error.statusCode >= 500 ? 'error' : 'warn'](JSON.stringify(logEntry));
 
   if (env === 'development' || env === 'test') {
-    sendErrorDev(err, res);
+    sendErrorDev(error, res);
   } else {
-    let error = Object.assign(Object.create(err), err);
-    error.message = err.message;
-
-    if (err.name === 'CastError') error = handleCastErrorDB(err);
-    if (err.code === 11000) error = handleDuplicateFieldsDB(err);
-    if (err.name === 'ValidationError') error = handleValidationErrorDB(err);
-    if (err.name === 'JsonWebTokenError') error = handleJWTError();
-    if (err.name === 'TokenExpiredError') error = handleJWTExpiredError();
-
     sendErrorProd(error, res);
   }
 };

@@ -4,9 +4,12 @@ const helmet = require('helmet');
 const healthRoutes = require('./routes/health.routes');
 const taskRoutes = require('./routes/taskRoutes');
 const authRoutes = require('./routes/authRoutes');
-const errorHandler = require('./middleware/errorHandler');
+const requestLogger = require('./middleware/requestLogger');
+const { notFoundHandler, errorHandler } = require('./middleware/error.middleware');
 
 const app = express();
+
+app.use(requestLogger);
 
 // 1. Basic Security HTTP Headers
 app.use(helmet());
@@ -59,13 +62,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 
 // 5. Unhandled Route (404)
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    status: 'fail',
-    message: `Cannot find ${req.method} ${req.originalUrl} on this server`,
-  });
-});
+app.use(notFoundHandler);
 
 // 6. Centralized Error Handler
 app.use(errorHandler);
